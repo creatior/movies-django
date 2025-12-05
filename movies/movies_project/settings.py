@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'users',
+    'movies',
     'common',
 ]
 
@@ -44,7 +45,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'movies.urls'
+ROOT_URLCONF = 'movies_project.urls'
 
 TEMPLATES = [
     {
@@ -61,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'movies.wsgi.application'
+WSGI_APPLICATION = 'movies_project.wsgi.application'
 
 
 # Database

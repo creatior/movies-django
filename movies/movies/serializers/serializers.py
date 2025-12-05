@@ -1,0 +1,6 @@
+from .director_serializer import DirectorSerializer
+from .genre_serializer import GenreSerializer
+from .movie_serializer import MovieSerializer
+from .movie_create_update_serializer import MovieCreateUpdateSerializer
+from .genre_create_update_serializer import GenreCreateUpdateSerializer
+from .director_create_update_serializer import DirectorCreateUpdateSerializer
