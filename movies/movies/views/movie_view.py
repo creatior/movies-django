@@ -4,6 +4,7 @@ from movies.serializers.serializers import MovieSerializer, MovieCreateUpdateSer
 from movies.services.services import list_movies
 from movies.models.models import Movie
 from drf_spectacular.utils import extend_schema
+from common.cache import cache_model_instance, get_cached_model, delete_cached_model
 
 class MovieViewSet(viewsets.ViewSet):
     @extend_schema(
@@ -30,6 +31,9 @@ class MovieViewSet(viewsets.ViewSet):
         serializer = MovieCreateUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         movie = serializer.save()
+
+        cache_model_instance(instance=movie, serializer_class=MovieSerializer)
+
         read_serializer = MovieSerializer(movie)
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
     
@@ -43,6 +47,9 @@ class MovieViewSet(viewsets.ViewSet):
         serializer = MovieCreateUpdateSerializer(movie, data=request.data)
         serializer.is_valid(raise_exception=True)
         movie = serializer.save()
+        
+        cache_model_instance(instance=movie, serializer_class=MovieSerializer)
+
         read_serializer = MovieSerializer(movie)
         return Response(read_serializer.data, status=status.HTTP_200_OK)
     
@@ -55,4 +62,25 @@ class MovieViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None) -> Response:
         movie = Movie.objects.get(pk=pk)
         movie.delete()
+
+        delete_cached_model(model_class=Movie, object_id=pk)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @extend_schema(
+        request=None,
+        responses={200: MovieSerializer},
+        summary="Retrieve movie",
+        description="Get single movie by ID from cache"
+    )
+    def retrieve(self, request, pk=None) -> Response:
+        cached = get_cached_model(model_class=Movie, object_id=pk)
+        if cached:
+            return Response(cached, status=status.HTTP_200_OK)
+
+        movie = Movie.objects.get(pk=pk)
+        serializer = MovieSerializer(movie)
+
+        cache_model_instance(instance=movie, serializer_class=MovieSerializer)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
