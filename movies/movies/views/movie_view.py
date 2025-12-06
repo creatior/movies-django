@@ -1,9 +1,11 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
 from movies.serializers.serializers import MovieSerializer, MovieCreateUpdateSerializer
 from movies.services.services import list_movies
 from movies.models.models import Movie
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from common.cache import cache_model_instance, get_cached_model, delete_cached_model
 
 class MovieViewSet(viewsets.ViewSet):
@@ -11,14 +13,64 @@ class MovieViewSet(viewsets.ViewSet):
         request=None,
         responses={200: MovieSerializer(many=True)},
         summary="List movies",
-        description="Returns list of movies"
+        description="Returns list of movies",
+        parameters=[
+            OpenApiParameter(
+                name="title",
+                description="Filter by movie title",
+                required=False,
+                type=OpenApiTypes.STR
+            ),
+            OpenApiParameter(
+                name="release_year",
+                description="Filter by release year",
+                required=False,
+                type=OpenApiTypes.INT
+            ),
+            OpenApiParameter(
+                name="director_id", 
+                description="Filter by director ID",
+                required=False,
+                type=OpenApiTypes.INT, 
+            ),
+            OpenApiParameter(
+                name="genre_ids", 
+                description="Multiple values: ?genre_ids=1&genre_ids=2",
+                type=OpenApiTypes.STR,
+                required=False,
+                many=True
+            ),
+            OpenApiParameter(
+                name="page",
+                description="Page number for pagination",
+                required=False,
+                type=OpenApiTypes.INT
+            ),
+            OpenApiParameter(
+                name="page_size",
+                description="Number of items per page",
+                required=False,
+                type=OpenApiTypes.INT
+            ),
+        ]
     )
     def list(self, request) -> Response:
         filters = {
             "title": request.query_params.get("title"),
-            "release_year": request.query_params.get("release_year")
+            "release_year": request.query_params.get("release_year"),
+            "director_id": request.query_params.get("director_id"),
+            "genre_ids": request.query_params.getlist("genre_ids")
         }
         queryset = list_movies(filters)
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        page = paginator.paginate_queryset(queryset, request)
+
+        if page is not None:
+            serializer = MovieSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
         serializer = MovieSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
