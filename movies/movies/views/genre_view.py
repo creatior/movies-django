@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from drf_spectacular.utils import extend_schema
 from movies.services.services import list_genres
 from movies.serializers.serializers import GenreSerializer, GenreCreateUpdateSerializer
@@ -7,7 +9,16 @@ from movies.models.models import Genre
 
 
 class GenreViewSet(viewsets.ViewSet):
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return super().get_permissions()
 
+    def get_authenticators(self):
+        if self.action in ["list", "retrieve"]:
+            return []
+        return super().get_authenticators()
+    
     @extend_schema(
         request=None,
         responses={200: GenreSerializer(many=True)},

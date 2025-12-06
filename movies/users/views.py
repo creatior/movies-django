@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from .serializers import RegistrationSerializer, LoginSerializer
 from .services import register_user, login_user
 from drf_spectacular.utils import extend_schema
@@ -13,7 +15,12 @@ class UserViewSet(viewsets.ViewSet):
         summary="New user registration",
         description="Creates user and returns JWT"
     )
-    @action(detail=False, methods=["post"])
+    @action(
+        detail=False, 
+        methods=["post"],
+        authentication_classes=[],
+        permission_classes=[AllowAny]
+        )
     def register(self, request) -> Response:
         serializer = RegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -26,10 +33,15 @@ class UserViewSet(viewsets.ViewSet):
         summary="Login",
         description="Login and returns JWT"
     )
-    @action(detail=False, methods=["post"])
+    @action(
+        detail=False, 
+        methods=["post"],
+        authentication_classes=[],
+        permission_classes=[AllowAny]
+    )
     def login(self, request) -> Response:
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        token = login_user(serializer.validated_data['email'], serializer.validated_data['password'])
+        token = login_user(serializer.validated_data['username'], serializer.validated_data['password'])
         return Response({"token": token}, status=status.HTTP_200_OK)
 

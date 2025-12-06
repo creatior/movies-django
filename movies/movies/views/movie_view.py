@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 
 from movies.serializers.serializers import MovieSerializer, MovieCreateUpdateSerializer
 from movies.services.services import list_movies
@@ -9,6 +10,16 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from common.cache import cache_model_instance, get_cached_model, delete_cached_model
 
 class MovieViewSet(viewsets.ViewSet):
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+        return super().get_permissions()
+
+    def get_authenticators(self):
+        if self.action in ["list", "retrieve"]:
+            return []
+        return super().get_authenticators()
+
     @extend_schema(
         request=None,
         responses={200: MovieSerializer(many=True)},
