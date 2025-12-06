@@ -1,25 +1,16 @@
-from rest_framework import viewsets, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny
+
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from common.cache import cache_model_instance, get_cached_model, delete_cached_model
 
 from movies.serializers.serializers import MovieSerializer, MovieCreateUpdateSerializer
 from movies.services.services import list_movies
 from movies.models.models import Movie
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
-from common.cache import cache_model_instance, get_cached_model, delete_cached_model
+from movies.views.base_movie_view import BaseMovieViewSet
 
-class MovieViewSet(viewsets.ViewSet):
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            return [AllowAny()]
-        return super().get_permissions()
-
-    def get_authenticators(self):
-        if self.action in ["list", "retrieve"]:
-            return []
-        return super().get_authenticators()
-
+class MovieViewSet(BaseMovieViewSet):
     @extend_schema(
         request=None,
         responses={200: MovieSerializer(many=True)},
