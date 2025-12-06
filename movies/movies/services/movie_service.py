@@ -13,4 +13,4 @@ def list_movies(filters=None):
         queryset = queryset.filter(title=title)
     if year:
         queryset = queryset.filter(release_year=year)
-    return queryset
+    return queryset.select_related("director").prefetch_related("genres")
