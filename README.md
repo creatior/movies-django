@@ -16,12 +16,13 @@
 | **common**    | Shared utilities (JWT handling, Redis helpers, superuser registration).                       |
 
 ## Technologies  
-| **Techology**    | **Purpose**                      |
-| ---------------- | -------------------------------- |
-| **Django + DRF** | REST API framework               |
-| **PostgreSQL**   | Main relational database         |
-| **Redis**        | Cache and temporary keys storage |
-| **Docker**       | Launching                        |
+| **Techology**       | **Purpose**                      |
+| ------------------- | -------------------------------- |
+| **Django + DRF**    | REST API framework               |
+| **PostgreSQL**      | Main relational database         |
+| **Redis**           | Cache and temporary keys storage |
+| **Docker**          | Launching                        |
+| **drf-spectacular** | Swagger UI schema                |
 
 ## Services and ports
 | Service          | Purpose | Default Port | URL |
